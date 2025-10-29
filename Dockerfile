@@ -1,8 +1,6 @@
 FROM ubuntu:25.04
 LABEL maintainer="Julien Rialland <julien.rialland@gmail.com>"
 
-ENV PYTHON_VERSION=3.13.9
-
 # Add 32-bit architecture for Wine
 RUN dpkg --add-architecture i386
 
@@ -20,10 +18,14 @@ ENV WINEDEBUG=-all
 RUN winecfg /v win11
 
 # Download and run the Python installer
-RUN cd /wine64/drive_c && curl -q -LO "https://www.python.org/ftp/python/${PYTHON_VERSION}/python-${PYTHON_VERSION}-amd64.exe"
-RUN wine "python-${PYTHON_VERSION}-amd64.exe" /quiet Include_doc=0 InstallAllUsers=1 PrependPath=1 Include_test=0
-RUN rm "python-${PYTHON_VERSION}-amd64.exe"
+RUN curl -q -LO "https://github.com/winpython/winpython/releases/download/17.2.20250920final/WinPython64-3.13.7.0dot.zip"
+RUN unzip "WinPython64-3.13.7.0dot.zip" -d /wine64/drive_c/WinPython
 
-# Verify installations
+# Add Python to PATH in the Wine environment
+RUN wine reg add "HKCU\Environment" /v PATH /t REG_EXPAND_SZ /d "C:\WinPython\WPy64-31700\python-3.13.7.amd64;C:\WinPython\WPy64-31700\Scripts;%PATH%" /f
+
+# Check that Python is installed correctly
 RUN wine python --version
-RUN wine pip --version
+
+# Use pip to install additional Python packages
+RUN wine pip install --upgrade pip setuptools wheel

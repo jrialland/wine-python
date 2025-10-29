@@ -10,16 +10,16 @@ RUN apt-get clean
 RUN curl -o /tmp/python-installer.exe https://www.python.org/ftp/python/3.13.9/python-3.13.9-amd64.exe
 
 # Install Python silently under Wine
-RUN wine64 /tmp/python-installer.exe /quiet InstallAllUsers=1 PrependPath=1 Include_test=0
+RUN wine /tmp/python-installer.exe /quiet InstallAllUsers=1 PrependPath=1 Include_test=0
 
 # Remove installer
 RUN rm /tmp/python-installer.exe
 
 # Verify installation
-RUN wine64 "C:\\Program Files\\Python313\\python.exe" --version
+RUN wine "C:\\Program Files\\Python313\\python.exe" --version
 
 # Install pip and basic build tools
-RUN wine64 "C:\\Program Files\\Python313\\python.exe" -m pip install --upgrade pip setuptools wheel
+RUN wine "C:\\Program Files\\Python313\\python.exe" -m pip install --upgrade pip setuptools wheel
 
 # Install pyinstaller
-RUN wine64 "C:\\Program Files\\Python313\\python.exe" -m pip install pyinstaller
+RUN wine "C:\\Program Files\\Python313\\python.exe" -m pip install pyinstaller

@@ -33,7 +33,7 @@ RUN file /wine64/drive_c/WinPython/WPy64-31700/python/python.exe
 RUN wine reg add "HKCU\Environment" /v PATH /t REG_EXPAND_SZ /d "C:\\WinPython\\WPy64-31700\\python;C:\\WinPython\\WPy64-31700\\python\\Scripts;%PATH%" /f
 
 # Check that Python is installed correctly
-RUN wine "C:\\WinPython\\WPy64-31700\\python.exe" --version
+RUN wine "C:\\WinPython\\WPy64-31700\\python\\python.exe" --version
 
 # Use pip to install additional Python packages
-RUN wine "C:\\WinPython\\WPy64-31700\\Scripts\\pip.exe" install --upgrade pip setuptools wheel
+RUN wine "C:\\WinPython\\WPy64-31700\\python\\Scripts\\pip.exe" install --upgrade pip setuptools wheel

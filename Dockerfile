@@ -29,6 +29,10 @@ RUN rm /tmp/python-embedder.zip
 RUN echo 'import site' >> /wine64/drive_c/Python313/python313._pth
 RUN echo 'site.addsitedir("C:\\\\Python313\\\\Lib\\\\site-packages")' >> /wine64/drive_c/Python313/python313._pth
 
+# Download CA certificates for Python SSL
+RUN curl -s -o /wine64/drive_c/Python313/cacert.pem https://curl.se/ca/cacert.pem
+ENV SSL_CERT_FILE=C:\\Python313\\cacert.pem
+
 # install pip
 RUN curl -s -o /wine64/drive_c/Python313/get-pip.py https://bootstrap.pypa.io/get-pip.py
 RUN wine "C:\\Python313\\python.exe" "C:\\Python313\\get-pip.py"

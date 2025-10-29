@@ -7,7 +7,7 @@ RUN dpkg --add-architecture i386
 # Install Wine and dependencies
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update
-RUN apt-get install -y curl unzip xvfb wine64
+RUN apt-get install -y curl unzip wine64
 RUN apt-get clean
 
 # Set up Wine for 64-bit Windows applications
@@ -17,19 +17,21 @@ ENV WINEARCH=win64
 RUN winecfg /v win11
 
 # Download the official Python installer for Windows
-RUN curl -o /tmp/python-installer.msi https://www.python.org/ftp/python/3.13.9/python-3.13.9-amd64.msi
+RUN curl -s -o /tmp/python-embedder.zip https://www.python.org/ftp/python/3.13.9/python-3.13.9-embed-amd64.zip
+RUN unzip /tmp/python-embedder.zip -d /wine64/drive_c/Python313
+RUN rm /tmp/python-embedder.zip
 
-# Install Python silently under Wine
-RUN xvfb-run wine msiexec /i /tmp/python-installer.msi /qn
+# Configure Python ._pth file to include site-packages
+RUN echo 'import site' >> /wine64/drive_c/Python313/python313._pth
+RUN echo 'site.addsitedir("C:\\\\Python313\\\\Lib\\\\site-packages")' >> /wine64/drive_c/Python313/python313._pth
 
-# Remove installer
-RUN rm /tmp/python-installer.msi
+# install pip
+curl -s -o /wine64/drive_c/Python313/get-pip.py https://bootstrap.pypa.io/get-pip.py
+RUN wine "C:\\Python313\\python.exe" "C:\\Python313\\get-pip.py"
 
-# Verify installation
-RUN wine "C:\\Program Files\\Python313\\python.exe" --version
+# modify PATH in wine registry to include Python and Scripts directories
+RUN wine reg add "HKCU\Environment" /v PATH /t REG_EXPAND_SZ /d "C:\Python313;C:\Python313\Scripts;%PATH%" /f
 
-# Install pip and basic build tools
-RUN wine "C:\\Program Files\\Python313\\python.exe" -m pip install --upgrade pip setuptools wheel
-
-# Install pyinstaller
-RUN wine "C:\\Program Files\\Python313\\python.exe" -m pip install pyinstaller
+# Verify installations
+RUN wine python --version
+RUN wine pip --version

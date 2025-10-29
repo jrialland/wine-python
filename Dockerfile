@@ -21,18 +21,13 @@ RUN winecfg /v win11
 
 # winetricks to install some necessary components
 RUN winetricks -q crypt32 urlmon wininet winhttp
-RUN mkdir -p /tmp/helper
 
-# Download and verify Python installer
-RUN --mount=from=ghcr.io/sigstore/cosign/cosign:v3.0.2@sha256:b29487e48205d875c324c79583e2806d9d269c0fa299e0861bbec023d8430c8b,source=/ko-app/cosign,target=/usr/bin/cosign \
-  umask 0 && cd /tmp/helper && \
-  curl --fail-with-body -LOO "https://www.python.org/ftp/python/${PYTHON_VERSION}/python-${PYTHON_VERSION}-amd64.exe{,.sigstore}" \
-  && \
-  xvfb-run sh -c "\
-    wine python-${PYTHON_VERSION}-amd64.exe /quiet TargetDir=C:\\Python \
-      Include_doc=0 InstallAllUsers=1 PrependPath=1; \
-    wineserver -w"
-    
+
+# Download and run the Python installer
+RUN curl --fail-with-body -LOO "https://www.python.org/ftp/python/${PYTHON_VERSION}/python-${PYTHON_VERSION}-amd64.exe"
+RUN xvfb-run wine "python-${PYTHON_VERSION}-amd64.exe" /quiet Include_doc=0 InstallAllUsers=1 PrependPath=1 Include_test=0 ; wineserver -w
+RUN rm "python-${PYTHON_VERSION}-amd64.exe"
+
 # Verify installations
-RUN wine python --version
-RUN wine pip --version
+RUN wine python --version; wineserver -w
+RUN wine pip --version; wineserver -w

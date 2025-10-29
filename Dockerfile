@@ -11,3 +11,10 @@ RUN curl -o /tmp/python.zip https://www.python.org/ftp/python/3.13.9/python-3.13
 RUN unzip /tmp/python.zip -d /opt/python-windows
 RUN rm /tmp/python.zip
 RUN wine /opt/python-windows/python.exe --version
+
+# Install pip and basic build tools
+RUN wine /opt/python-windows/python.exe -m ensurepip
+RUN wine /opt/python-windows/python.exe -m pip install --upgrade pip setuptools wheel
+
+# Install pyinstaller
+RUN wine /opt/python-windows/python.exe -m pip install pyinstaller

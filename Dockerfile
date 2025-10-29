@@ -7,7 +7,7 @@ RUN dpkg --add-architecture i386
 # Install Wine and dependencies
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update -qq
-RUN apt-get install -qq -y ca-certificates curl unzip wine64
+RUN apt-get install -qq -y ca-certificates file curl unzip wine64
 RUN apt-get clean
 
 # Set up Wine for 64-bit Windows applications

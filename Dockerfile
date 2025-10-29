@@ -28,12 +28,11 @@ RUN unzip -q "WinPython64-3.13.7.0dot.zip" -d /wine64/drive_c/WinPython
 
 # check the path of python.exe
 RUN file /wine64/drive_c/WinPython/WPy64-31700/python/python.exe
+ENV WINPYTHON_PATH="C:\\WinPython\\WPy64-31700\\python"
 
 # Add Python to PATH in the Wine environment
-RUN wine reg add "HKCU\Environment" /v PATH /t REG_EXPAND_SZ /d "C:\\WinPython\\WPy64-31700\\python;C:\\WinPython\\WPy64-31700\\python\\Scripts;%PATH%" /f
+RUN wine reg add "HKCU\Environment" /v PATH /t REG_EXPAND_SZ /d "${WINPYTHON_PATH};${WINPYTHON_PATH}\\Scripts;%PATH%" /f
 
 # Check that Python is installed correctly
-RUN wine "C:\\WinPython\\WPy64-31700\\python\\python.exe" --version
-
-# Use pip to install additional Python packages
-RUN wine "C:\\WinPython\\WPy64-31700\\python\\Scripts\\pip.exe" install --upgrade pip setuptools wheel
+RUN wine python --version
+RUN wine pip --version

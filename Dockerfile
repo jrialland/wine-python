@@ -6,8 +6,8 @@ RUN dpkg --add-architecture i386
 
 # Install Wine and dependencies
 ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get update
-RUN apt-get install -y ca-certificates curl unzip wine64
+RUN apt-get update -qq
+RUN apt-get install -qq -y ca-certificates curl unzip wine64
 RUN apt-get clean
 
 # Set up Wine for 64-bit Windows applications
@@ -24,13 +24,16 @@ RUN curl -q -LO "https://github.com/winpython/winpython/releases/download/17.2.2
 RUN echo "${EXPECTED_SHA256}  WinPython64-3.13.7.0dot.zip" | sha256sum -c -
 
 # Unzip WinPython
-RUN unzip "WinPython64-3.13.7.0dot.zip" -d /wine64/drive_c/WinPython
+RUN unzip -q "WinPython64-3.13.7.0dot.zip" -d /wine64/drive_c/WinPython
+
+# check the path of python.exe
+RUN file /wine64/drive_c/WinPython/WPy64-31700/python/python.exe
 
 # Add Python to PATH in the Wine environment
-RUN wine reg add "HKCU\Environment" /v PATH /t REG_EXPAND_SZ /d "C:\WinPython\WPy64-31700\python;C:\WinPython\WPy64-31700\python\Scripts;%PATH%" /f
+RUN wine reg add "HKCU\Environment" /v PATH /t REG_EXPAND_SZ /d "C:\\WinPython\\WPy64-31700\\python;C:\\WinPython\\WPy64-31700\\python\\Scripts;%PATH%" /f
 
 # Check that Python is installed correctly
-RUN wine python --version
+RUN wine "C:\\WinPython\\WPy64-31700\\python.exe" --version
 
 # Use pip to install additional Python packages
-RUN wine pip install --upgrade pip setuptools wheel
+RUN wine "C:\\WinPython\\WPy64-31700\\Scripts\\pip.exe" install --upgrade pip setuptools wheel

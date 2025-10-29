@@ -7,7 +7,7 @@ RUN dpkg --add-architecture i386
 # Install Wine and dependencies
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update
-RUN apt-get install -y curl unzip wine64 winetricks
+RUN apt-get install -y ca-certificates curl unzip wine64 winetricks
 RUN apt-get clean
 
 # Set up Wine for 64-bit Windows applications
@@ -21,24 +21,13 @@ RUN winecfg /v win11
 RUN winetricks -q crypt32 urlmon wininet winhttp
 
 # Download the official Python installer for Windows
-RUN curl -s -o /tmp/python-embedder.zip https://www.python.org/ftp/python/3.13.9/python-3.13.9-embed-amd64.zip
-RUN unzip /tmp/python-embedder.zip -d /wine64/drive_c/Python313
-RUN rm /tmp/python-embedder.zip
+RUN curl -s -o /tmp/python-installer.exe https://www.python.org/ftp/python/3.13.9/python-3.13.9-amd64.exe
 
-# Configure Python ._pth file to include site-packages
-RUN echo 'import site' >> /wine64/drive_c/Python313/python313._pth
-RUN echo 'site.addsitedir("C:\\\\Python313\\\\Lib\\\\site-packages")' >> /wine64/drive_c/Python313/python313._pth
-
-# Download CA certificates for Python SSL
-RUN curl -s -o /wine64/drive_c/Python313/cacert.pem https://curl.se/ca/cacert.pem
-ENV SSL_CERT_FILE=C:\\Python313\\cacert.pem
-
-# install pip
-RUN curl -s -o /wine64/drive_c/Python313/get-pip.py https://bootstrap.pypa.io/get-pip.py
-RUN wine "C:\\Python313\\python.exe" "C:\\Python313\\get-pip.py"
+# Install Python silently
+RUN wine /tmp/python-installer.exe /quiet InstallAllUsers=1 PrependPath=1 Include_test=0
 
 # modify PATH in wine registry to include Python and Scripts directories
-RUN wine reg add "HKCU\Environment" /v PATH /t REG_EXPAND_SZ /d "C:\Python313;C:\Python313\Scripts;%PATH%" /f
+#RUN wine reg add "HKCU\Environment" /v PATH /t REG_EXPAND_SZ /d "C:\Python313;C:\Python313\Scripts;%PATH%" /f
 
 # Verify installations
 RUN wine python --version

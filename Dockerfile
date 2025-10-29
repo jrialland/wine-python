@@ -7,14 +7,17 @@ RUN dpkg --add-architecture i386
 # Install Wine and dependencies
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update -qq
-RUN apt-get install -qq -y ca-certificates file curl unzip wine64
+RUN apt-get install -qq -y ca-certificates file curl unzip wine32:i386 wine64
 RUN apt-get clean
+
+ENV XDG_RUNTIME_DIR=/tmp/runtime
+RUN mkdir -p /tmp/runtime
 
 # Set up Wine for 64-bit Windows applications
 RUN mkdir -p /wine64
 ENV WINEPREFIX=/wine64
 ENV WINEARCH=win64
-ENV WINEDEBUG=-all
+#ENV WINEDEBUG=-all
 RUN winecfg /v win11
 
 # Download and run the Python installer

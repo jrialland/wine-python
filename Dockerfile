@@ -7,7 +7,7 @@ RUN dpkg --add-architecture i386
 # Install Wine and dependencies
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update
-RUN apt-get install -y curl unzip wine64
+RUN apt-get install -y curl unzip xvfb wine64
 RUN apt-get clean
 
 # Set up Wine for 64-bit Windows applications
@@ -20,7 +20,7 @@ RUN winecfg /v win11
 RUN curl -o /tmp/python-installer.msi https://www.python.org/ftp/python/3.13.9/python-3.13.9-amd64.msi
 
 # Install Python silently under Wine
-RUN wine msiexec /i /tmp/python-installer.msi /qn
+RUN xvfb-run wine msiexec /i /tmp/python-installer.msi /qn
 
 # Remove installer
 RUN rm /tmp/python-installer.msi

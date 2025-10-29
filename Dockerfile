@@ -1,4 +1,4 @@
-FROM ubuntu:25.04
+FROM debian:sid-20251020-slim
 LABEL maintainer="Julien Rialland <julien.rialland@gmail.com>"
 
 # Add 32-bit architecture for Wine
@@ -19,7 +19,7 @@ RUN winecfg /v win11
 
 # Download and run the Python installer
 ENV EXPECTED_SHA256=c0f3b1a2809106f4a1a2260ba9d7421fe84b820593c51e818fc5da4f475ff54e
-RUN curl -q -LO "https://github.com/winpython/winpython/releases/download/17.2.20250920final/WinPython64-3.13.7.0dot.zip"
+RUN curl -s -LO "https://github.com/winpython/winpython/releases/download/17.2.20250920final/WinPython64-3.13.7.0dot.zip"
 # Verify the SHA256 checksum
 RUN echo "${EXPECTED_SHA256}  WinPython64-3.13.7.0dot.zip" | sha256sum -c -
 
@@ -29,10 +29,21 @@ RUN unzip -q "WinPython64-3.13.7.0dot.zip" -d /wine64/drive_c/WinPython
 # check the path of python.exe
 RUN file /wine64/drive_c/WinPython/WPy64-31700/python/python.exe
 ENV WINPYTHON_PATH="C:\\WinPython\\WPy64-31700\\python"
-
-# Add Python to PATH in the Wine environment
 RUN wine reg add "HKCU\Environment" /v PATH /t REG_EXPAND_SZ /d "${WINPYTHON_PATH};${WINPYTHON_PATH}\\Scripts;%PATH%" /f
 
+RUN echo 'wine "${WINPYTHON_PATH}\\python.exe" "$@"' > /usr/local/bin/wine-python
+RUN chmod +x /usr/local/bin/wine-python
+RUN ln -s /usr/local/bin/wine-python /usr/local/bin/python
+
+RUN echo 'wine "${WINPYTHON_PATH}\\Scripts\\pip.exe" "$@"' > /usr/local/bin/wine-pip
+RUN chmod +x /usr/local/bin/wine-pip
+RUN ln -s /usr/local/bin/wine-pip /usr/local/bin/pip
+
 # Check that Python is installed correctly
-RUN wine python --version
-RUN wine pip --version
+RUN wine-python --version
+
+# Upgrade pip
+RUN wine-python -m pip install --upgrade pip
+RUN wine-pip --version
+
+WORKDIR /wine64/drive_c

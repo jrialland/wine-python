@@ -18,11 +18,16 @@ ENV WINEDEBUG=-all
 RUN winecfg /v win11
 
 # Download and run the Python installer
+ENV EXPECTED_SHA256=c0f3b1a2809106f4a1a2260ba9d7421fe84b820593c51e818fc5da4f475ff54e
 RUN curl -q -LO "https://github.com/winpython/winpython/releases/download/17.2.20250920final/WinPython64-3.13.7.0dot.zip"
+# Verify the SHA256 checksum
+RUN echo "${EXPECTED_SHA256}  WinPython64-3.13.7.0dot.zip" | sha256sum -c -
+
+# Unzip WinPython
 RUN unzip "WinPython64-3.13.7.0dot.zip" -d /wine64/drive_c/WinPython
 
 # Add Python to PATH in the Wine environment
-RUN wine reg add "HKCU\Environment" /v PATH /t REG_EXPAND_SZ /d "C:\WinPython\WPy64-31700\python-3.13.7.amd64;C:\WinPython\WPy64-31700\Scripts;%PATH%" /f
+RUN wine reg add "HKCU\Environment" /v PATH /t REG_EXPAND_SZ /d "C:\WinPython\WPy64-31700\python;C:\WinPython\WPy64-31700\python\Scripts;%PATH%" /f
 
 # Check that Python is installed correctly
 RUN wine python --version

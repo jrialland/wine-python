@@ -7,14 +7,20 @@ RUN dpkg --add-architecture i386
 # Install Wine and dependencies
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update
-RUN apt-get install -y curl unzip wine64
+RUN apt-get install -y curl unzip wine64 winetricks
 RUN apt-get clean
 
 # Set up Wine for 64-bit Windows applications
 RUN mkdir -p /wine64
 ENV WINEPREFIX=/wine64
 ENV WINEARCH=win64
+ENV WINEDEBUG=-all
 RUN winecfg /v win11
+
+# winetricks : ssl backend
+RUN winetricks -q crypt32
+RUN winetricks -q winhttp
+RUN winetricks -q wininet
 
 # Download the official Python installer for Windows
 RUN curl -s -o /tmp/python-embedder.zip https://www.python.org/ftp/python/3.13.9/python-3.13.9-embed-amd64.zip

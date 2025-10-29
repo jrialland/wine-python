@@ -26,7 +26,7 @@ RUN echo 'import site' >> /wine64/drive_c/Python313/python313._pth
 RUN echo 'site.addsitedir("C:\\\\Python313\\\\Lib\\\\site-packages")' >> /wine64/drive_c/Python313/python313._pth
 
 # install pip
-curl -s -o /wine64/drive_c/Python313/get-pip.py https://bootstrap.pypa.io/get-pip.py
+RUN curl -s -o /wine64/drive_c/Python313/get-pip.py https://bootstrap.pypa.io/get-pip.py
 RUN wine "C:\\Python313\\python.exe" "C:\\Python313\\get-pip.py"
 
 # modify PATH in wine registry to include Python and Scripts directories

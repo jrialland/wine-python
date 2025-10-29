@@ -17,10 +17,8 @@ ENV WINEARCH=win64
 ENV WINEDEBUG=-all
 RUN winecfg /v win11
 
-# winetricks : ssl backend
-RUN winetricks -q crypt32
-RUN winetricks -q winhttp
-RUN winetricks -q wininet
+# winetricks to install some necessary components
+RUN winetricks -q crypt32 urlmon wininet winhttp ie8
 
 # Download the official Python installer for Windows
 RUN curl -s -o /tmp/python-embedder.zip https://www.python.org/ftp/python/3.13.9/python-3.13.9-embed-amd64.zip

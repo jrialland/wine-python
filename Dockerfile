@@ -9,7 +9,7 @@ RUN dpkg --add-architecture i386
 # Install Wine and dependencies
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update
-RUN apt-get install -y ca-certificates curl unzip wine64 winetricks xvfb
+RUN apt-get install -y ca-certificates curl unzip wine64
 RUN apt-get clean
 
 # Set up Wine for 64-bit Windows applications
@@ -19,15 +19,11 @@ ENV WINEARCH=win64
 ENV WINEDEBUG=-all
 RUN winecfg /v win11
 
-# winetricks to install some necessary components
-RUN winetricks -q crypt32 urlmon wininet winhttp
-
-
 # Download and run the Python installer
-RUN curl --fail-with-body -LOO "https://www.python.org/ftp/python/${PYTHON_VERSION}/python-${PYTHON_VERSION}-amd64.exe"
-RUN xvfb-run wine "python-${PYTHON_VERSION}-amd64.exe" /quiet Include_doc=0 InstallAllUsers=1 PrependPath=1 Include_test=0 ; wineserver -w
+RUN cd /wine64/drive_c && curl -q -LO "https://www.python.org/ftp/python/${PYTHON_VERSION}/python-${PYTHON_VERSION}-amd64.exe"
+RUN wine "python-${PYTHON_VERSION}-amd64.exe" /quiet Include_doc=0 InstallAllUsers=1 PrependPath=1 Include_test=0
 RUN rm "python-${PYTHON_VERSION}-amd64.exe"
 
 # Verify installations
-RUN wine python --version; wineserver -w
-RUN wine pip --version; wineserver -w
+RUN wine python --version
+RUN wine pip --version

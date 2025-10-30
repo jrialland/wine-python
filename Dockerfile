@@ -28,7 +28,7 @@ RUN winecfg /v win11
 # some wine tweaks
 RUN winetricks --self-update
 RUN winetricks list-all
-RUN winetricks -q vcrun2022
+RUN winetricks -q vcrun2019
 RUN winetricks -q wininet
 RUN winetricks -q crypt32
 

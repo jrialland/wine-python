@@ -45,8 +45,15 @@ RUN ln -s /usr/local/bin/wine-pip /usr/local/bin/pip
 # Check that Python is installed correctly
 RUN wine-python --version
 
-# Upgrade pip
-RUN wine-python -m pip install --upgrade pip
-RUN wine-pip --version
+# Make ssl work
+RUN update-ca-certificates
+RUN mkdir -p ${WINEPREFIX}/drive_c/WinPython/WPy64-31700/sites-packages/certifi
+RUN cat /etc/ssl/certs/*.pem /etc/ssl/certs/*.crt > ${WINEPREFIX}/drive_c/WinPython/WPy64-31700/sites-packages/certifi/cacert.pem
+ENV SSL_CERT_FILE="C:\\WinPython\\WPy64-31700\\python\\Lib\\site-packages\\certifi\\cacert.pem"
+RUN wine reg add "HKCU\\Software\\Wine\\WineTLS" /v CA_BUNDLE /t REG_SZ /d ${SSL_CERT_FILE} /f
+
+# disable Wine debug messages
+ENV WINEDEBUG=-all
 
 WORKDIR /wine64/drive_c
+CMD ["wine", "${WINPYTHON_PATH}\\python.exe"]

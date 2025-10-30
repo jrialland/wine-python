@@ -28,8 +28,9 @@ RUN winecfg /v win11
 # some wine tweaks
 RUN winetricks --self-update
 RUN winetricks list-all
-RUN winetricks -q crypt32 || true
-RUN winetricks -q schannel || true
+RUN winetricks -q vcrun2022
+RUN winetricks -q wininet
+RUN winetricks -q crypt32
 
 # Download and install WinPython
 RUN curl -s -LO "https://github.com/winpython/winpython/releases/download/17.2.20250920final/WinPython64-3.13.7.0dot.zip"

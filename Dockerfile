@@ -28,7 +28,16 @@ RUN winecfg /v win11
 # some wine tweaks
 RUN winetricks --self-update
 RUN winetricks list-all
-RUN winetricks -q vcrun2019
+
+RUN for feature in "vcrun2022 vcrun2019 vcrun2017 vcrun2015"; do \
+        if winetricks -q $feature; then \
+            echo "$feature installed successfully"; \
+            break; \
+        else \
+            echo "Failed to install $feature, trying next..."; \
+        fi; \
+    done
+
 RUN winetricks -q wininet
 RUN winetricks -q crypt32
 

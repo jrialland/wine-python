@@ -29,7 +29,7 @@ RUN winecfg /v win11
 RUN winetricks --self-update
 RUN winetricks list-all
 
-RUN for feature in "vcrun2022 vcrun2019 vcrun2017 vcrun2015"; do \
+RUN for feature in vcrun2022 vcrun2019 vcrun2017 vcrun2015; do \
         if winetricks -q $feature; then \
             echo "$feature installed successfully"; \
             break; \
